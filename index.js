@@ -5,18 +5,20 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDb from "./config/dbConnect.js";
+import authRouter from "./routes/authRoute.js";
+import { handleError, notFound } from "./middlewares/errorHandler.js";
 
 dotenv.config();
 
 const app = express();
-
 app.use(express.json());
+
+//cors
+app.use(cors);
 
 //database connection
 connectDb();
 
-//cors
-app.use(cors);
 
 //bodyParser
 app.use(bodyParser.json());
@@ -28,6 +30,12 @@ app.use(
 
 //cookieparser
 app.use(cookieParser);
+
+//Router 
+app.use("/api/user",authRouter)
+app.use(notFound)
+app.use(handleError)
+
 
 //Connection To server
 const port = process.env.PORT || 6000; //Alternate port
