@@ -2,23 +2,24 @@ import express from "express";
 import dotenv from "dotenv";
 import colors from "colors";
 import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDb from "./config/dbConnect.js";
 import authRouter from "./routes/authRoute.js";
 import { handleError, notFound } from "./middlewares/errorHandler.js";
+import cookieParser from "cookie-parser";
 
-dotenv.config();
+
 
 const app = express();
 app.use(express.json());
 
 //cors
-app.use(cors);
+app.use(cors());
+
+dotenv.config();
 
 //database connection
 connectDb();
-
 
 //bodyParser
 app.use(bodyParser.json());
@@ -28,8 +29,9 @@ app.use(
   })
 );
 
-//cookieparser
-app.use(cookieParser);
+//cookie-parser
+app.use(cookieParser());
+
 
 //Router 
 app.use("/api/user",authRouter)
