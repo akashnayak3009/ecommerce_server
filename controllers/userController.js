@@ -69,6 +69,7 @@ export const getAllUser = asyncHandler(async (req, res) => {
     return res.status(201).json({
       status: true,
       message: "All User fetched Successfully",
+      getUsers,
     });
   } catch (error) {
     return res
@@ -76,3 +77,46 @@ export const getAllUser = asyncHandler(async (req, res) => {
       .json({ status: false, message: "Fetching All User Failed!!!" });
   }
 });
+
+export const getAUser = asyncHandler(async(req,res)=>{
+  const {id}= req.params; 
+  try{
+    const getUser = await User.findById(id);
+    if (!getUser) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Users Not found" });
+    }
+    return res.status(201).json({
+      status: true,
+      message: " User fetched Successfully",
+      getUser,
+    });
+
+  }catch(error){
+    return res
+    .status(500)
+    .json({ status: false, message: "Fetching User Failed!!!" });
+}
+})
+
+export const deleteAUser = asyncHandler(async(req,res)=>{
+  const {id}= req.params; 
+  try{
+    const deleteUser = await User.findByIdAndDelete(id);
+    if (!deleteUser) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Users Not found" });
+    }
+    return res.status(201).json({
+      status: true,
+      message: " User Deleted Successfully",
+    });
+
+  }catch(error){
+    return res
+    .status(500)
+    .json({ status: false, message: "Deleting User Failed!!!" });
+}
+})
