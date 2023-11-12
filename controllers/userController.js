@@ -120,3 +120,7 @@ export const deleteAUser = asyncHandler(async(req,res)=>{
     .json({ status: false, message: "Deleting User Failed!!!" });
 }
 })
+
+export const updateUser = asyncHandler(async(req,res)=>{
+  
+})
