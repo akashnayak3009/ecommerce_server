@@ -78,9 +78,9 @@ export const getAllUser = asyncHandler(async (req, res) => {
   }
 });
 
-export const getAUser = asyncHandler(async(req,res)=>{
-  const {id}= req.params; 
-  try{
+export const getAUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
     const getUser = await User.findById(id);
     if (!getUser) {
       return res
@@ -92,17 +92,16 @@ export const getAUser = asyncHandler(async(req,res)=>{
       message: " User fetched Successfully",
       getUser,
     });
-
-  }catch(error){
+  } catch (error) {
     return res
-    .status(500)
-    .json({ status: false, message: "Fetching User Failed!!!" });
-}
-})
+      .status(500)
+      .json({ status: false, message: "Fetching User Failed!!!" });
+  }
+});
 
-export const deleteAUser = asyncHandler(async(req,res)=>{
-  const {id}= req.params; 
-  try{
+export const deleteAUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
     const deleteUser = await User.findByIdAndDelete(id);
     if (!deleteUser) {
       return res
@@ -113,14 +112,31 @@ export const deleteAUser = asyncHandler(async(req,res)=>{
       status: true,
       message: " User Deleted Successfully",
     });
-
-  }catch(error){
+  } catch (error) {
     return res
-    .status(500)
-    .json({ status: false, message: "Deleting User Failed!!!" });
-}
-})
+      .status(500)
+      .json({ status: false, message: "Deleting User Failed!!!" });
+  }
+});
 
-export const updateUser = asyncHandler(async(req,res)=>{
-  
-})
+export const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const updateUser = await User.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "User Updated Successfully",
+      updateUser,
+    });
+
+  } catch (error) {
+    console.log("Update User error", error);
+    return res.status(500).json({
+      status: false,
+      message: "ISE In update user",
+    });
+  }
+});

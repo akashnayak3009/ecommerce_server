@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcrypt'
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     mobile: {
       type: String,
@@ -26,10 +27,21 @@ const userSchema = new mongoose.Schema(
       required: true,
       min: 4,
     },
-    role:{
-      type:String,
-      default:"user"
-    }
+    role: {
+      type: String,
+      default: "user",
+    },
+    cart: {
+      type: Array,
+      default: [],
+    },
+    address: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Address",
+      },
+    ],
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
   {
     timestamps: true,
