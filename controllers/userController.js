@@ -131,12 +131,63 @@ export const updateUser = asyncHandler(async (req, res) => {
       message: "User Updated Successfully",
       updateUser,
     });
-
   } catch (error) {
     console.log("Update User error", error);
     return res.status(500).json({
       status: false,
       message: "ISE In update user",
+    });
+  }
+});
+
+export const blockUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const block = await User.findByIdAndUpdate(
+      id,
+      {
+        isBlocked: true,
+      },
+      {
+        new: true,
+      }
+    );
+    return res.status(200).json({
+      status: true,
+      message: "User Blocked Successfully",
+      block
+    });
+  } catch (error) {
+    console.log("Block User Error", error);
+    return res.status(500).json({
+      status: false,
+      message: "ISP block user",
+    });
+  }
+});
+
+export const unBlockUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const unBlock = await User.findByIdAndUpdate(
+      id,
+      {
+        isBlocked: false,
+      },
+      {
+        new: true,
+      }
+    );
+    return res.status(200).json({
+      status: true,
+      message: "User UnBlocked Successfully",
+      unBlock
+    });
+  } catch (error) {
+    console.log("UnBlock User Error", error);
+    return res.status(500).json({
+      status: false,
+      message: "ISP UnBlock user",
     });
   }
 });

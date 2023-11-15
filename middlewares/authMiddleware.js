@@ -56,3 +56,20 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
     });
   }
 });
+
+
+
+
+
+// export const restrictTo=(...role)=>{
+//   return asyncHandler(async(req,res,next)=>{
+//     if(!role.includes(req.user.role)){
+//       return res.status(403).json({
+//         status:false,
+//         message:"Your are not authorized"
+//       })
+//     }else{
+//       next();
+//     }
+//   })
+// }
