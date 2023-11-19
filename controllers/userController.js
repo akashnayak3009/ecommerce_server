@@ -34,30 +34,55 @@ export const loginUserCtrl = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const findUser = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-    if (findUser && (await findUser.isPasswordMatched(password))) {
-      const { _id, firstname, lastname, email, mobile } = findUser;
-      res.status(200).json({
-        status: true,
-        _id,
-        firstname,
-        lastname,
-        email,
-        mobile,
-        token: generateToken(_id),
-      });
-    } else {
+    if (!user || !(await user.isPasswordMatched(password))) {
       return res
         .status(400)
-        .json({ status: false, message: "Invalid credentials" });
+        .json({ status: false, message: "Invalid email or password" });
     }
+
+    const { _id, firstname, lastname, mobile } = user;
+    const refreshToken = generateRefreshToken(user._id);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user.id,
+      {
+        refreshToken,
+      },
+      { new: true }
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    });
+
+    const authToken = generateToken(_id);
+    return res.status(200).json({
+      status: true,
+      _id,
+      firstname,
+      lastname,
+      email,
+      mobile,
+      token: authToken,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ status: false, message: "Login doesn't happend!!!" });
+    console.error("Login error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Login failed. Please try again later.",
+    });
   }
 });
+
+export const handleRefreshToken = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if(!cookie?.refreshToken){
+    return res.json({message:"No Refresh Token in cookies"})
+  }
+})
 
 export const getAllUser = asyncHandler(async (req, res) => {
   try {

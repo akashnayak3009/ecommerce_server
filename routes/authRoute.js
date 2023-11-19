@@ -6,6 +6,7 @@ import {
   deleteAUser,
   getAUser,
   getAllUser,
+  handleRefreshToken,
   loginUserCtrl,
   unBlockUser,
   updateUser,
@@ -18,10 +19,12 @@ authRouter.post("/login", loginUserCtrl);
 
 authRouter.get("/all-users", authMiddleware, getAllUser);
 authRouter.get("/:id", authMiddleware, isAdmin, getAUser);
+authRouter.get("/refresh", handleRefreshToken);
 
 authRouter.put("/:id", authMiddleware, isAdmin, updateUser);
 authRouter.put("/block-user/:id", authMiddleware, isAdmin, blockUser);
 authRouter.put("/unblock-user/:id", authMiddleware, isAdmin, unBlockUser);
+
 
 authRouter.delete("/:id", authMiddleware, deleteAUser);
 
