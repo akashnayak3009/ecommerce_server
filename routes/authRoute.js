@@ -8,6 +8,7 @@ import {
   getAllUser,
   handleRefreshToken,
   loginUserCtrl,
+  logout,
   unBlockUser,
   updateUser,
 } from "../controllers/userController.js";
@@ -20,6 +21,7 @@ authRouter.post("/login", loginUserCtrl);
 authRouter.get("/all-users", authMiddleware, getAllUser);
 authRouter.get("/:id", authMiddleware, isAdmin, getAUser);
 authRouter.get("/refresh", handleRefreshToken);
+authRouter.get("/logout", logout);
 
 authRouter.put("/:id", authMiddleware, isAdmin, updateUser);
 authRouter.put("/block-user/:id", authMiddleware, isAdmin, blockUser);

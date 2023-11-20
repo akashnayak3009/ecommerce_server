@@ -7,6 +7,7 @@ import connectDb from "./config/dbConnect.js";
 import authRouter from "./routes/authRoute.js";
 import { handleError, notFound } from "./middlewares/errorHandler.js";
 import cookieParser from "cookie-parser";
+import productRouter from "./routes/productRoute.js";
 
 
 
@@ -34,7 +35,9 @@ app.use(cookieParser());
 
 
 //Router 
-app.use("/api/user",authRouter)
+app.use("/api/user", authRouter)
+app.use("/api/product", productRouter)
+
 app.use(notFound)
 app.use(handleError)
 

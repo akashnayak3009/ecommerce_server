@@ -79,9 +79,44 @@ export const loginUserCtrl = asyncHandler(async (req, res) => {
 
 export const handleRefreshToken = asyncHandler(async (req, res) => {
   const cookie = req.cookies;
-  if(!cookie?.refreshToken){
-    return res.json({message:"No Refresh Token in cookies"})
+  if (!cookie?.refreshToken) {
+    return res.json({ message: "No Refresh Token in cookies" })
   }
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    return res.json({ message: "No refresh token present in db or not matched" })
+  };
+  jwt.verify(refreshToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err || user.id !== decoded.id) {
+      const accessToken = generateToken(user?.id);
+      res.json({ accessToken });
+    }
+  })
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie?.refreshToken) {
+    return res.json({ message: "No Refresh Token in cookies" })
+  }
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+   res.clearCookie('refreshToken',{
+    httpOnly:true,
+    secure: true
+   })
+   return res.status(204); // Forbidden
+  };
+  await User.findByIdAndUpdate(refreshToken, {
+    refreshToken: ""
+  });
+  res.clearCookie('refreshToken',{
+    httpOnly:true,
+    secure: true
+   })
+   return res.status(204); //NO content
 })
 
 export const getAllUser = asyncHandler(async (req, res) => {
