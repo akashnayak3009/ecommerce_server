@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import colors from "colors";
 import bodyParser from "body-parser";
 import cors from "cors";
+import morgan from 'morgan'
 import connectDb from "./config/dbConnect.js";
 import authRouter from "./routes/authRoute.js";
 import { handleError, notFound } from "./middlewares/errorHandler.js";
@@ -16,6 +17,8 @@ app.use(express.json());
 
 //cors
 app.use(cors());
+
+app.use(morgan("combined"));
 
 dotenv.config();
 
