@@ -80,7 +80,7 @@ export const getAProduct = asyncHandler(async (req, res) => {
 
 // Get all products
 export const getAllProduct = asyncHandler(async (req, res) => {
-    try {
+    try { 
         // Find all products
         const getAllProduct = await Product.find();
         // Return a success message with all products
@@ -99,7 +99,8 @@ export const deleteProduct = asyncHandler(async (req, res) => {
         const deleteProduct = await Product.findByIdAndDelete();
         return res.status(200).json({
             status: true,
-            Message: "Product Deleted"
+            Message: "Product Deleted",
+             
         })
     } catch (error) {
         console.log('Error deleting', error);
