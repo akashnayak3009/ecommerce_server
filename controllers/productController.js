@@ -84,14 +84,14 @@ export const getAllProduct = asyncHandler(async (req, res) => {
         // Find all products
         const getAllProduct = await Product.find();
         // Return a success message with all products
-        return res.status(200).json({ status: true, message: "Products fetch succesfully", getAllProduct })
+        return res.status(200).json({ status: true, message: "Products fetch successfully", getAllProduct })
     } catch (error) {
         console.log("Error fetching the all products", error);
         // Return an error message
         return res.status(500).json({ status: false, message: "Error fetching the all products" })
     }
 })
-//
+
 
 export const deleteProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
