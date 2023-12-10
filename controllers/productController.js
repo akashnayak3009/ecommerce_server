@@ -1,85 +1,62 @@
 
 import Product from "../models/productModel.js";
+import User from "../models/userModel.js";
 import asyncHandler from 'express-async-handler';
 import slugify from "slugify";
+import { validateMongodbId } from "../utils/validateMongodbId.js";
 
 // Create a new product
 export const createProduct = asyncHandler(async (req, res) => {
     try {
-        // If the product title exists, create a slug
-        if (req.body.title) {
-            req.body.slug = slugify(req.body.title)
-        }
-        // Create a new product using the provided data
-        const newProduct = await Product.create(req.body);
-        // Return a success message with the new product
-        return res.status(200).json({
-            status: true,
-            message: "Product Created",
-            newProduct,
-        })
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
+      const newProduct = await Product.create(req.body);
+      res.json(newProduct);
     } catch (error) {
-        console.log("Product Not Created");
-        //", error Return an error message
-        return res.status(500).json({
-            status: false,
-            message: "Error Occurred"
-        })
+      throw new Error(error);
     }
-})
-
-// Update an existing product
-export const updateProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+  });
+  
+ export  const updateProduct = asyncHandler(async (req, res) => {
+    const id = req.params;
+    validateMongodbId(id);
     try {
-        // If the product title exists, create a slug
-        if (req.body.title) {
-            req.body.slug = slugify(req.body.title)
-        }
-        // Find the product by id and update it with the provided data
-        const updateProduct = await Product.findByIdAndUpdate(id, req.body, {
-            new: true
-        })
-        // Return a success message with the updated product
-        return res.status(200).json({
-            status: true,
-            message: "Successfully Updated",
-            updateProduct
-        })
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
+      const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+        new: true,
+      });
+      res.json(updateProduct);
     } catch (error) {
-        console.log("Update unsuccessfully", error);
-        // Return an error message
-        return res.status(500).json({
-            status: false,
-            message: "Error Occurred in updating"
-        })
+      throw new Error(error);
     }
-})
-
-// Get a single product by id
-export const getAProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+  });
+  
+  export  const deleteProduct = asyncHandler(async (req, res) => {
+    const id = req.params;
+    validateMongodbId(id);
     try {
-        // Find the product by id
-        const findProduct = await Product.findById(id);
-        // Return a success message with the found product
-        return res.status(200).json({
-            status: true,
-            message: "Product Fetched",
-            findProduct,
-        })
+      const deleteProduct = await Product.findOneAndDelete(id);
+      res.json(deleteProduct);
     } catch (error) {
-        console.log("Fetch failed", error);
-        // Return an error message
-        return res.status(500).json({
-            status: false,
-            message: "Error Occurred in Fetching the Product"
-        })
+      throw new Error(error);
     }
-})
-
-// Get all products
-export const getAllProduct = asyncHandler(async (req, res) => {
+  });
+  
+ export const getaProduct = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    validateMongodbId(id);
+    try {
+      const findProduct = await Product.findById(id);
+      res.json(findProduct);
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
+  
+  export const getAllProduct = asyncHandler(async (req, res) => {
     try {
       // Filtering
       const queryObj = { ...req.query };
@@ -124,22 +101,94 @@ export const getAllProduct = asyncHandler(async (req, res) => {
       throw new Error(error);
     }
   });
-
-
-export const deleteProduct = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+  
+  export const addToWishlist = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { prodId } = req.body;
     try {
-        const deleteProduct = await Product.findByIdAndDelete();
-        return res.status(200).json({
-            status: true,
-            Message: "Product Deleted",
-             
-        })
+      const user = await User.findById(_id);
+      const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
+      if (alreadyadded) {
+        let user = await User.findByIdAndUpdate(
+          _id,
+          {
+            $pull: { wishlist: prodId },
+          },
+          {
+            new: true,
+          }
+        );
+        res.json(user);
+      } else {
+        let user = await User.findByIdAndUpdate(
+          _id,
+          {
+            $push: { wishlist: prodId },
+          },
+          {
+            new: true,
+          }
+        );
+        res.json(user);
+      }
     } catch (error) {
-        console.log('Error deleting', error);
-        return res.status(500).json({
-            status: false,
-            message: "Failed in Deleting"
-        })
+      throw new Error(error);
     }
-})
+  });
+  
+ export  const rating = asyncHandler(async (req, res) => {
+    const { _id } = req.user;
+    const { star, prodId, comment } = req.body;
+    try {
+      const product = await Product.findById(prodId);
+      let alreadyRated = product.ratings.find(
+        (userId) => userId.postedby.toString() === _id.toString()
+      );
+      if (alreadyRated) {
+        const updateRating = await Product.updateOne(
+          {
+            ratings: { $elemMatch: alreadyRated },
+          },
+          {
+            $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+          },
+          {
+            new: true,
+          }
+        );
+      } else {
+        const rateProduct = await Product.findByIdAndUpdate(
+          prodId,
+          {
+            $push: {
+              ratings: {
+                star: star,
+                comment: comment,
+                postedby: _id,
+              },
+            },
+          },
+          {
+            new: true,
+          }
+        );
+      }
+      const getallratings = await Product.findById(prodId);
+      let totalRating = getallratings.ratings.length;
+      let ratingsum = getallratings.ratings
+        .map((item) => item.star)
+        .reduce((prev, curr) => prev + curr, 0);
+      let actualRating = Math.round(ratingsum / totalRating);
+      let finalproduct = await Product.findByIdAndUpdate(
+        prodId,
+        {
+          totalrating: actualRating,
+        },
+        { new: true }
+      );
+      res.json(finalproduct);
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
+  

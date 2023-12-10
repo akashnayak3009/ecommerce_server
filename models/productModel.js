@@ -1,59 +1,66 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"; // Erase if already required
 
-let productSchema = new mongoose.Schema({
+// Declare the Schema of the Mongo model
+var productSchema = new mongoose.Schema(
+  {
     title: {
-        type: String,
-        required: true,
-        trim: true,
+      type: String,
+      required: true,
+      trim: true,
     },
     slug: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
     },
     description: {
-        type: String,
-        required: true,
-        unique: true,
+      type: String,
+      required: true,
     },
     price: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
+      type: String,
+      required: true,
     },
     brand: {
-        type: String,
-        enum: ["Apple", "Samsung", "Other"]
+      type: String,
+      required: true,
     },
     quantity: {
-        type: Number,
+      type: Number,
+      required: true,
     },
     sold: {
-        type: Number,
-        default: 0,
-        select:false    //hide form user 
+      type: Number,
+      default: 0,
     },
-    images: {
-        type: Array,
-    },
-    color: {
-        type: String,
-        enum: ['Black', 'Brown', 'Red']
-    },
-    ratings: [{
+    images: [
+      {
+        public_id: String,
+        url: String,
+      },
+    ],
+    color: [],
+    tags: String,
+    ratings: [
+      {
         star: Number,
-        postedBy: { type: mongoose.Schema.ObjectId, ref: "User" }
-    }]
-},
-    {
-        timestamps: true,
-    }
-)
+        comment: String,
+        postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
+    totalrating: {
+      type: String,
+      default: 0,
+    },
+  },
+  { timestamps: true }
+);
 
-
+//Export the model
 const Product = mongoose.model("Product", productSchema);
-export default Product
+export default Product;
